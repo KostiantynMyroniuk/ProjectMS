@@ -1,0 +1,17 @@
+@Identity.API_HostAddress = http://localhost:5225
+
+GET {{Identity.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+POST {{Identity.API_HostAddress}}/register
+Content-Type: application/json
+
+{
+  "userName": "testuser",
+  "email": "muronandreyk@gmail.com",
+  "password": "Test@1234"
+}
+
+###
