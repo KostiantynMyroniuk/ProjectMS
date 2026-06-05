@@ -4,7 +4,7 @@ var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
-var sqlserver = builder.AddSqlServer("projectmsSqlServer")
+var sqlserver = builder.AddSqlServer("projectmsSqlServer", null, 60000)
     .AddDatabase("projectmsDb");
 
 builder.AddProject<Projects.Identity_API>("identity-api")
