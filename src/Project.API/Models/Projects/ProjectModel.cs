@@ -1,7 +1,8 @@
-﻿using Shared.Results;
+﻿using Project.API.Models.Members;
+using Shared.Results;
 using System.ComponentModel.DataAnnotations;
 
-namespace Project.API.Models
+namespace Project.API.Models.Projects
 {
     public class ProjectModel
     {
@@ -41,12 +42,12 @@ namespace Project.API.Models
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public Result AddMember(string userId, string userName)
+        public Result AddMember(string userId, string userName, string email)
         {
             if (ProjectMembers.Any(m => m.UserId == userId))
                 return Result.Failure("User is already a member of the project.");
 
-            var member = ProjectMember.Create(Id, userId, userName);
+            var member = ProjectMember.Create(userId, userName, email, Id);
 
             ProjectMembers.Add(member);
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Project.API.Models;
-using Project.API.Models.Dtos;
+using Project.API.Models.Projects;
+using Project.API.Models.Projects.Dtos;
 using Shared.Models;
 
-namespace Project.API.Apis
+namespace Project.API.Apis.Projects
 {
     public static class ProjectApi
     {
@@ -35,7 +35,7 @@ namespace Project.API.Apis
 
             var validProjectsQuery = services.Context.Projects
                 .AsNoTracking()
-                .Where(p => p.OwnerId == userId);
+                .Where(p => p.OwnerId == userId || p.ProjectMembers.Any(pm => pm.UserId == userId));
 
             var totalCount = await validProjectsQuery
                 .CountAsync();
@@ -56,7 +56,9 @@ namespace Project.API.Apis
         {
             var userId = services.IdentityService.GetUserId();
 
-            var project = await services.Context.Projects.FindAsync(projectId);
+            var project = await services.Context.Projects
+                .Include(p => p.ProjectMembers)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
 
             if (project is null)
             {
@@ -64,17 +66,27 @@ namespace Project.API.Apis
                 return Results.NotFound();
             }
 
-            if (userId != project.OwnerId)
+            var hasAccess = project.OwnerId == userId || project.ProjectMembers.Any(pm => pm.UserId == userId);
+
+            if (!hasAccess)
             {
-                services.Logger.LogWarning("User {UserId} attempted to access to project {ProjectId}. Access denied.", userId, projectId);
+                services.Logger.LogWarning("User {UserId} tried to access project {ProjectId} without permission", userId, projectId);
                 return Results.NotFound();
             }
 
-            return Results.Ok(project);
+            var projectDto = new ProjectModelDto(
+                project.Id,
+                project.Name,
+                project.Description,
+                project.OwnerName,
+                project.CreatedAt
+            );
+
+            return Results.Ok(projectDto);
         }
 
         public static async Task<IResult> CreateProject(
-            ProjectModelDto projectDto,
+            CreateProjectModelDto projectDto,
             [AsParameters] ProjectServices services)
         {
             var userId = services.IdentityService.GetUserId();
@@ -102,17 +114,12 @@ namespace Project.API.Apis
         {
             var userId = services.IdentityService.GetUserId();
 
-            var project = await services.Context.Projects.FindAsync(projectId);
+            var project = await services.Context.Projects
+                .FirstOrDefaultAsync(p => p.Id == projectId && p.OwnerId == userId);
 
             if (project is null)
             {
                 services.Logger.LogWarning("Project {ProjectId} not found", projectId);
-                return Results.NotFound();
-            }
-
-            if (project.OwnerId != userId)
-            {
-                services.Logger.LogWarning("User {UserId} attempted to access to project {ProjectId}. Access denied.", userId, projectId);
                 return Results.NotFound();
             }
 
@@ -133,17 +140,12 @@ namespace Project.API.Apis
         {
             var userId = services.IdentityService.GetUserId();
 
-            var project = await services.Context.Projects.FindAsync(projectId);
+            var project = await services.Context.Projects
+                .FirstOrDefaultAsync(p => p.Id == projectId && p.OwnerId == userId);
 
             if (project is null)
             {
                 services.Logger.LogWarning("Project {ProjectId} not found", projectId);
-                return Results.NotFound();
-            }
-
-            if (project.OwnerId != userId)
-            {
-                services.Logger.LogWarning("User {UserId} attempted to access to project {ProjectId}. Access denied.", userId, projectId);
                 return Results.NotFound();
             }
 

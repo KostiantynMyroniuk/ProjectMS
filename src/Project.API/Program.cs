@@ -1,4 +1,5 @@
-using Project.API.Apis;
+using Project.API.Apis.Invitations;
+using Project.API.Apis.Projects;
 using Project.API.Extensions;
 using Shared.Auth;
 
@@ -17,5 +18,7 @@ app.UseAuthorization();
 app.UseMigrations();
 
 app.MapProjectApi();
+
+app.MapInvitationApi();
 
 app.Run();

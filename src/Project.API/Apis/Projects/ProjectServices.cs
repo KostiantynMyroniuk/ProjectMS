@@ -1,7 +1,7 @@
 ﻿using Project.API.Infrastructure;
 using Project.API.Services;
 
-namespace Project.API.Apis
+namespace Project.API.Apis.Projects
 {
     public class ProjectServices(
         IIdentityService identityService, 

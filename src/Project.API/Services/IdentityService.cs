@@ -23,5 +23,12 @@ namespace Project.API.Services
                 ?? _httpContext.HttpContext?.User.FindFirst("name")?.Value
                 ?? _httpContext.HttpContext?.User.FindFirst(JwtRegisteredClaimNames.Name)?.Value;
         }
+
+        public string GetEmail()
+        {
+            return _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Email)?.Value
+                ?? _httpContext.HttpContext?.User.FindFirst("email")?.Value
+                ?? _httpContext.HttpContext?.User.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
+        }
     }
 }

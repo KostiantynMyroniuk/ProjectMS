@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Project.API.Models;
+using Project.API.Models.Invitations;
+using Project.API.Models.Members;
+using Project.API.Models.Projects;
 
 namespace Project.API.Infrastructure
 {
@@ -7,7 +9,9 @@ namespace Project.API.Infrastructure
     {
         public DbSet<ProjectModel> Projects { get; set; }
 
-        public DbSet<ProjectMember> Members { get; set; }
+        public DbSet<ProjectMember> ProjectMembers { get; set; }
+
+        public DbSet<ProjectInvitation> Invitations { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -18,6 +22,10 @@ namespace Project.API.Infrastructure
                 .WithOne(m => m.Project)
                 .HasForeignKey(pm => pm.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectInvitation>()
+                .Property(i => i.Status)
+                .HasConversion<string>();
         }
     }
 }

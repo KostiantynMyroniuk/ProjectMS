@@ -1,4 +1,6 @@
-﻿namespace Project.API.Models
+﻿using Project.API.Models.Projects;
+
+namespace Project.API.Models.Members
 {
     public class ProjectMember
     {
@@ -10,6 +12,8 @@
 
         public string UserName { get; set; } = default!;
 
+        public string Email { get; set; } = default!;
+
 
         public Guid ProjectId { get; set; }
 
@@ -17,16 +21,18 @@
 
 
         internal static ProjectMember Create(
-            Guid id,
             string userId,
-            string userName)
+            string userName,
+            string email,
+            Guid projectId)
         {
             return new ProjectMember
             {
-                Id = id,
                 JoinedAt = DateTime.UtcNow,
                 UserId = userId,
-                UserName = userName
+                UserName = userName,
+                Email = email,
+                ProjectId = projectId
             };
         }
     }

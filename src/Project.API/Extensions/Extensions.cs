@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.API.Infrastructure;
+using Project.API.Models;
 using Project.API.Services;
+using System.Text.Json.Serialization;
 
 namespace Project.API.Extensions
 {
@@ -13,11 +15,19 @@ namespace Project.API.Extensions
                 options.UseSqlServer(builder.Configuration.GetConnectionString("projectmsDb"));
             });
 
-            builder.Services.AddScoped<IIdentityService, IdentityService>();
+            builder.Services.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddAuthorization();
+
+
+            builder.Services.Configure<AppOptions>(builder.Configuration.GetSection("App"));
+
+            builder.Services.AddScoped<IIdentityService, IdentityService>();
         }
 
         public static void UseMigrations(this WebApplication app)
