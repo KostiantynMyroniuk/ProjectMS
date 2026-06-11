@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Project.API.Infrastructure;
 using Project.API.Models;
 using Project.API.Services;
@@ -13,6 +14,16 @@ namespace Project.API.Extensions
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("projectmsDb"));
+            });
+
+            builder.Services.AddMassTransit(x =>
+            {
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(builder.Configuration.GetConnectionString("rabbitmq"));
+
+                    cfg.ConfigureEndpoints(context);
+                });
             });
 
             builder.Services.ConfigureHttpJsonOptions(options =>

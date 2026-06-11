@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Project.API.Models.Invitations;
 using Project.API.Models.Invitations.Dtos;
 using Project.API.Models.Projects;
+using Shared.Events;
 
 namespace Project.API.Apis.Invitations
 {
@@ -20,9 +22,12 @@ namespace Project.API.Apis.Invitations
 
         public static async Task<IResult> InviteUser(
             ProjectInvitationDto invitationDto,
-            [AsParameters] InvitationServices services)
+            [AsParameters] InvitationServices services,
+            IPublishEndpoint publishEndpoint)
         {
             var userId = services.IdentityService.GetUserId();
+            var userName = services.IdentityService.GetUserName();
+
             var token = Guid.NewGuid();
 
             var project = await services.Context.Projects
@@ -52,11 +57,19 @@ namespace Project.API.Apis.Invitations
             services.Context.Invitations.Add(invitation);
             await services.Context.SaveChangesAsync();
 
+            // event sending
             var baseUrl = services.AppOptions.Value.BaseUrl;
 
-            var acceptUrl = new Uri($"{baseUrl}/invitation/accept?token={token}");
+            var acceptUrl = $"{baseUrl}/invitation/accept?token={token}";
 
-            return Results.Ok(new { acceptUrl });
+            await publishEndpoint.Publish(new InvitationCreatedEvent(
+                Email: invitation.Email,
+                ProjectName: invitation.Project.Name,
+                InvitedByName: userName,
+                AcceptUrl: acceptUrl,
+                ExpiresAt: invitation.ExpiresAt));
+
+            return Results.Ok();
         }
 
         public static async Task<IResult> AcceptInvitation(
