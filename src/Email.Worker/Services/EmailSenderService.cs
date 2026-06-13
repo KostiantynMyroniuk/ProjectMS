@@ -1,4 +1,5 @@
 ﻿using Email.Worker.Models;
+using Email.Worker.Services.Smtp;
 using MailKit;
 using MailKit.Net.Smtp;
 using MassTransit.Configuration;
@@ -11,6 +12,7 @@ using System.Text;
 namespace Email.Worker.Services
 {
     public class EmailSenderService(
+        ISmtpClientFactory smtpClientFactory,
         IOptions<EmailOptions> options, 
         ILogger<EmailSenderService> logger) : IEmailService
     {
@@ -48,7 +50,7 @@ namespace Email.Worker.Services
 
             message.Body = body.ToMessageBody();
 
-            using var client = new SmtpClient();
+            await using var client = smtpClientFactory.Create();
             await client.ConnectAsync(options.Value.Host, options.Value.Port, MailKit.Security.SecureSocketOptions.StartTls, ct);
             await client.AuthenticateAsync(options.Value.FromEmail, options.Value.Password, ct);
             await client.SendAsync(message, ct);

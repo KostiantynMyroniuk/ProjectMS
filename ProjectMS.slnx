@@ -4,6 +4,9 @@
     <Project Path="src/Project.API/Project.API.csproj" Id="eb557755-6cbb-4bed-a0f6-d79bcd675235" />
     <Project Path="src/Task.API/Task.API.csproj" Id="f914b86b-9982-4b80-857c-c67cce23d7a3" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/EmailWorker.UnitTests/EmailWorker.UnitTests.csproj" Id="ee490d42-75cc-46c3-868f-724e92919a9e" />
+  </Folder>
   <Folder Name="/Workers/">
     <Project Path="src/Email.Worker/Email.Worker.csproj" Id="7d41fa26-2576-4024-a96f-c6de26b3cb95" />
   </Folder>
