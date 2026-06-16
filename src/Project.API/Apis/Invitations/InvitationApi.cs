@@ -57,7 +57,7 @@ namespace Project.API.Apis.Invitations
             services.Context.Invitations.Add(invitation);
             await services.Context.SaveChangesAsync();
 
-            // event sending
+            // event publish
             var baseUrl = services.AppOptions.Value.BaseUrl;
 
             var acceptUrl = $"{baseUrl}/invitation/accept?token={token}";
@@ -69,12 +69,15 @@ namespace Project.API.Apis.Invitations
                 AcceptUrl: acceptUrl,
                 ExpiresAt: invitation.ExpiresAt));
 
+            services.Logger.LogInformation("User {UserId} invited {Email} to project {ProjectId}", userId, invitation.Email, invitation.ProjectId);
+
             return Results.Ok();
         }
 
         public static async Task<IResult> AcceptInvitation(
             string token,
-            [AsParameters] InvitationServices services)
+            [AsParameters] InvitationServices services,
+            IPublishEndpoint publishEndpoint)
         {
             var userId = services.IdentityService.GetUserId();
             var userEmail = services.IdentityService.GetEmail();
@@ -123,6 +126,11 @@ namespace Project.API.Apis.Invitations
             await services.Context.SaveChangesAsync();
 
             services.Logger.LogInformation("User {UserId} accepted invitation to project {ProjectId}", userId, invitation.ProjectId);
+
+            //event publish
+            await publishEndpoint.Publish(new UserAddedToProjectEvent(userId, invitation.ProjectId));
+
+            services.Logger.LogInformation("User {UserId} added to project {ProjectId}", userId, invitation.ProjectId);
 
             return Results.Ok();
         }

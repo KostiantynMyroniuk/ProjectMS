@@ -1,4 +1,4 @@
-﻿namespace Project.API.Services
+﻿namespace Shared.Services
 {
     public interface IIdentityService
     {

@@ -1,7 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.AspNetCore.Http;
+using Shared.Services;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace Project.API.Services
+namespace Shared.Services
 {
     public class IdentityService : IIdentityService
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Project.API.Infrastructure;
 using Project.API.Models;
-using Project.API.Services;
+using Shared.Services;
 
 namespace Project.API.Apis.Invitations
 {

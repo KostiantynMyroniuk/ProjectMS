@@ -1,5 +1,5 @@
 ﻿using Project.API.Infrastructure;
-using Project.API.Services;
+using Shared.Services;
 
 namespace Project.API.Apis.Projects
 {

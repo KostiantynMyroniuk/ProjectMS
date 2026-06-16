@@ -1,16 +1,25 @@
 ﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Project.API.Infrastructure;
-using Project.API.Models;
 using Shared.Services;
 using System.Text.Json.Serialization;
+using Tasks.API.Consumers;
+using Tasks.API.Infrastructure;
 
-namespace Project.API.Extensions
+namespace Tasks.API.Extensions
 {
-    public static class Extensions
+    public static class Extension
     {
-        public static void AddProjectConfiguration(this IHostApplicationBuilder builder)
+        public static void AddAppConfiguration(this IHostApplicationBuilder builder)
         {
+            builder.Services.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+
+            builder.Services.AddAuthorization();
+
+            builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("projectmsDb"));
@@ -18,6 +27,8 @@ namespace Project.API.Extensions
 
             builder.Services.AddMassTransit(x =>
             {
+                x.AddConsumer<UserAddedToProjectConsumer>();
+
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(builder.Configuration.GetConnectionString("rabbitmq"));
@@ -25,18 +36,6 @@ namespace Project.API.Extensions
                     cfg.ConfigureEndpoints(context);
                 });
             });
-
-            builder.Services.ConfigureHttpJsonOptions(options =>
-            {
-                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            });
-
-            builder.Services.AddHttpContextAccessor();
-
-            builder.Services.AddAuthorization();
-
-
-            builder.Services.Configure<AppOptions>(builder.Configuration.GetSection("App"));
 
             builder.Services.AddScoped<IIdentityService, IdentityService>();
         }

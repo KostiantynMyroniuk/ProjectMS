@@ -11,13 +11,16 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.4.3" />
     <PackageReference Include="Aspire.Hosting.SqlServer" Version="13.4.3" />
+
+	<PackageReference Include="MessagePack" Version="3.1.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Email.Worker\Email.Worker.csproj" />
     <ProjectReference Include="..\Identity.API\Identity.API.csproj" />
     <ProjectReference Include="..\Project.API\Project.API.csproj" />
-    <ProjectReference Include="..\Task.API\Task.API.csproj" />
+    <ProjectReference Include="..\Tasks.API\Tasks.API.csproj" />
+    <ProjectReference Include="..\Tasks.API\Tasks.API.csproj" />
   </ItemGroup>
 
 </Project>

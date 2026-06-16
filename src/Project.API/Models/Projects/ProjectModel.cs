@@ -1,5 +1,5 @@
 ﻿using Project.API.Models.Members;
-using Shared.Results;
+using Shared.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Project.API.Models.Projects
