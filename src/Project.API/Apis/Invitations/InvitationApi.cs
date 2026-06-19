@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Project.API.Models.Invitations;
 using Project.API.Models.Invitations.Dtos;
 using Project.API.Models.Projects;
-using Shared.Events;
+using Shared.Events.Invitations;
+using Shared.Events.ProjectMembers;
 
 namespace Project.API.Apis.Invitations
 {
@@ -128,7 +129,9 @@ namespace Project.API.Apis.Invitations
             services.Logger.LogInformation("User {UserId} accepted invitation to project {ProjectId}", userId, invitation.ProjectId);
 
             //event publish
-            await publishEndpoint.Publish(new UserAddedToProjectEvent(userId, invitation.ProjectId));
+            await publishEndpoint.Publish(new UserAddedToProjectEvent(
+                userId, 
+                invitation.ProjectId));
 
             services.Logger.LogInformation("User {UserId} added to project {ProjectId}", userId, invitation.ProjectId);
 

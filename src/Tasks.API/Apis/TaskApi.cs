@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Shared.Models;
+using Tasks.API.Infrastructure;
 using Tasks.API.Models.ProjectTasks;
 
 namespace Tasks.API.Apis
@@ -8,13 +10,15 @@ namespace Tasks.API.Apis
     {
         public static IEndpointRouteBuilder MapTaskApi(this IEndpointRouteBuilder app)
         {
-            var group = app.MapGroup("/")
+            var tasksGroup = app.MapGroup("/projects/{projectId:guid}")
                 .WithTags("Tasks")
                 .RequireAuthorization();
 
-            group.MapGet("/projects/{projectId:guid}/tasks/{taskId:guid}", GetTaskById);
-            group.MapGet("/projects/{projectId:guid}/tasks", GetTasks);
-            group.MapPost("/projects/{projectId:guid}/tasks", CreateTask);
+            tasksGroup.MapGet("tasks/{taskId:guid}", GetTaskById);
+            tasksGroup.MapGet("tasks", GetTasks);
+            tasksGroup.MapPost("tasks", CreateTask);
+            tasksGroup.MapPut("tasks/{taskId:guid}", UpdateTask);
+            tasksGroup.MapDelete("tasks/{taskId:guid}", DeleteTask);
 
             return app;
         }
@@ -26,17 +30,13 @@ namespace Tasks.API.Apis
         {
             var userId = services.IdentityService.GetUserId();
 
-            var isMember = await services.Context.ProjectMemberships
-                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
+            var accessError = await CheckAccessAsync(services.Context, projectId, userId);
 
-            if (!isMember)
-            {
-                services.Logger.LogWarning("User {UserId} attempted to access project {ProjectId} without membership", userId, projectId);
+            if (accessError is not null)
+                return accessError;
 
-                return Results.NotFound();
-            }
-
-            var task = await services.Context.Tasks.FindAsync(taskId);
+            var task = await services.Context.Tasks
+                .FirstOrDefaultAsync(t => t.Id == taskId && t.ProjectId == projectId);
 
             if (task == null)
                 return Results.NotFound();
@@ -52,15 +52,10 @@ namespace Tasks.API.Apis
         {
             var userId = services.IdentityService.GetUserId();
 
-            var isMember = await services.Context.ProjectMemberships
-                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
+            var accessError = await CheckAccessAsync(services.Context, projectId, userId);
 
-            if (!isMember)
-            {
-                services.Logger.LogWarning("User {UserId} attempted to access project {ProjectId} without membership", userId, projectId);
-
-                return Results.NotFound();
-            }
+            if (accessError is not null)
+                return accessError;
 
             var query = services.Context.Tasks
                 .AsNoTracking()
@@ -86,15 +81,10 @@ namespace Tasks.API.Apis
         {
             var userId = services.IdentityService.GetUserId();
 
-            var isMember = await services.Context.ProjectMemberships
-                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
+            var accessError = await CheckAccessAsync(services.Context, projectId, userId);
 
-            if (!isMember)
-            {
-                services.Logger.LogWarning("User {UserId} attempted to access project {ProjectId} without membership", userId, projectId);
-
-                return Results.NotFound();
-            }
+            if (accessError is not null)
+                return accessError;
 
             var task = new ProjectTask(taskDto.Title)
             {
@@ -111,6 +101,73 @@ namespace Tasks.API.Apis
             services.Logger.LogInformation("User {UserId} created task {TaskId} in project {ProjectId}", userId, task.Id, projectId);
 
             return Results.Created($"/projects/{projectId}/tasks/{task.Id}", task);
+        }
+
+        public static async Task<IResult> UpdateTask(
+            Guid taskId,
+            Guid projectId,
+            ProjectTaskDto taskDto,
+            [AsParameters] TaskServices services)
+        {
+            var userId = services.IdentityService.GetUserId();
+
+            var accessError = await CheckAccessAsync(services.Context, projectId, userId);
+
+            if (accessError is not null)
+                return accessError;
+
+            var task = await services.Context.Tasks
+                .FirstOrDefaultAsync(t => t.Id == taskId && t.ProjectId == projectId);
+
+            if (task == null)
+                return Results.NotFound();
+
+            task.Title = taskDto.Title;
+            task.Description = taskDto.Description;
+            task.Status = taskDto.Status;
+            task.Priority = taskDto.Priority;
+
+            await services.Context.SaveChangesAsync();
+
+            services.Logger.LogInformation("User {UserId} updated task {TaskId} in project {ProjectId}", userId, task.Id, projectId);
+
+            return Results.Ok(task);
+        }
+
+        public static async Task<IResult> DeleteTask(
+            Guid taskId,
+            Guid projectId,
+            [AsParameters] TaskServices services)
+        {
+            var userId = services.IdentityService.GetUserId();
+
+            var accessError = await CheckAccessAsync(services.Context, projectId, userId);
+
+            if (accessError is not null)
+                return accessError;
+
+            var task = await services.Context.Tasks
+                .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == taskId);
+
+            services.Context.Tasks.Remove(task);
+            await services.Context.SaveChangesAsync();
+
+            return Results.NoContent();
+        }
+
+        private static async Task<IResult?> CheckAccessAsync(
+            ApplicationDbContext context, Guid projectId, string userId)
+        {
+            var projectExists = await context.ProjectSnapshots
+                .AnyAsync(ps => ps.ProjectId == projectId && ps.IsActive);
+
+            if (!projectExists)
+                return Results.NotFound();
+
+            var isMember = await context.ProjectMemberships
+                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
+
+            return isMember ? null : Results.Forbid();
         }
     }
 }

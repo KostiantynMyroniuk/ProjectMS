@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Project.API.Models.Projects;
 using Project.API.Models.Projects.Dtos;
+using Shared.Events.Projects;
 using Shared.Models;
 
 namespace Project.API.Apis.Projects
@@ -87,7 +89,8 @@ namespace Project.API.Apis.Projects
 
         public static async Task<IResult> CreateProject(
             CreateProjectModelDto projectDto,
-            [AsParameters] ProjectServices services)
+            [AsParameters] ProjectServices services,
+            IPublishEndpoint publishEndpoint)
         {
             var userId = services.IdentityService.GetUserId();
             var userName = services.IdentityService.GetUserName();
@@ -103,6 +106,12 @@ namespace Project.API.Apis.Projects
             await services.Context.SaveChangesAsync();
 
             services.Logger.LogInformation("Project {ProjectId} created by user {UserId}", project.Id, userId);
+
+            //event
+            await publishEndpoint.Publish(new ProjectCreatedEvent(
+                project.Id, 
+                project.Name, 
+                project.OwnerId));
 
             return Results.Created($"/projects/{project.Id}", project);
         }

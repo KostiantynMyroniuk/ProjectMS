@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Shared.Events
+namespace Shared.Events.ProjectMembers
 {
     public record UserAddedToProjectEvent(string UserId, Guid ProjectId);
 }

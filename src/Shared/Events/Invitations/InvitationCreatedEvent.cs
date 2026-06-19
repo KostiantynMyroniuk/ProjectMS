@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Shared.Events
+namespace Shared.Events.Invitations
 {
     public record InvitationCreatedEvent(
         string Email, 

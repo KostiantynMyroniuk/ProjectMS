@@ -1,6 +1,6 @@
 ﻿using Email.Worker.Services;
 using MassTransit;
-using Shared.Events;
+using Shared.Events.Invitations;
 using System;
 using System.Collections.Generic;
 using System.Text;

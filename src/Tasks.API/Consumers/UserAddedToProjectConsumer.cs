@@ -1,6 +1,6 @@
 ﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Shared.Events;
+using Shared.Events.ProjectMembers;
 using Tasks.API.Infrastructure;
 using Tasks.API.Models.ProjectMemberhips;
 
