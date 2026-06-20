@@ -27,7 +27,7 @@ namespace Tasks.API.Extensions
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddConsumer<UserAddedToProjectConsumer>();
+                x.AddConsumers(typeof(IConsumer).Assembly);
 
                 x.UsingRabbitMq((context, cfg) =>
                 {

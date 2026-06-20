@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Apis/">
+    <Project Path="src/File.API/File.API.csproj" Id="81a9474c-e264-44a0-9d80-d1a757bbc066" />
     <Project Path="src/Identity.API/Identity.API.csproj" Id="d15cd0bc-174a-41dd-8f4e-8384a4bb9739" />
     <Project Path="src/Project.API/Project.API.csproj" Id="eb557755-6cbb-4bed-a0f6-d79bcd675235" />
     <Project Path="src/Tasks.API/Tasks.API.csproj" />
