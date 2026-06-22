@@ -1,10 +1,10 @@
-﻿using MassTransit;
+﻿using File.API.Infrastructure;
+using File.API.Models.Projects;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Shared.Events.Projects;
-using Tasks.API.Infrastructure;
-using Tasks.API.Models.ProjectSnapshots;
 
-namespace Tasks.API.Consumers
+namespace File.API.Consumers
 {
     public class ProjectCreatedConsumer : IConsumer<ProjectCreatedEvent>
     {
@@ -19,7 +19,7 @@ namespace Tasks.API.Consumers
         {
             var msg = context.Message;
 
-            var alreadyExist = await _context.ProjectSnapshots.AnyAsync(p => p.ProjectId == msg.ProjectId);
+            var alreadyExist = await _context.Projects.AnyAsync(p => p.ProjectId == msg.ProjectId);
 
             if (!alreadyExist)
             {
@@ -30,7 +30,7 @@ namespace Tasks.API.Consumers
                     IsActive = true
                 };
 
-                _context.ProjectSnapshots.Add(project);
+                _context.Projects.Add(project);
                 await _context.SaveChangesAsync();
             }
         }

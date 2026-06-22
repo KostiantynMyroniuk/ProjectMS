@@ -6,8 +6,12 @@ var jwtKey = builder.AddParameter("jwt-key", builder.Configuration["Jwt:Key"], s
 var jwtIssuer = builder.AddParameter("jwt-issuer", builder.Configuration["Jwt:Issuer"]);
 var jwtAudience = builder.AddParameter("jwt-audience", builder.Configuration["Jwt:Audience"]);
 
-var sqlserver = builder.AddSqlServer("projectmsSqlServer", null, 60000)
-    .AddDatabase("projectmsDb");
+var sqlserver = builder.AddSqlServer("projectmsSqlServer", null, 60000);
+
+var identityDb = sqlserver.AddDatabase("identityDb");
+var projectDb = sqlserver.AddDatabase("projectDb");
+var taskDb = sqlserver.AddDatabase("taskDb");
+var fileDb = sqlserver.AddDatabase("fileDb");
 
 var rabbitmq = builder.AddRabbitMQ("rabbitmq");
 
@@ -18,36 +22,28 @@ var blobs = azureStorage.AddBlobs("blobs");
 
 builder.AddProject<Projects.Identity_API>("identity-api")
     .WithJwtConfig(jwtKey, jwtIssuer, jwtAudience)
-    .WithReference(sqlserver)
-    .WaitFor(sqlserver);
+    .WithReference(identityDb).WaitFor(identityDb);
 
 var projectApi = builder.AddProject<Projects.Project_API>("project-api")
     .WithJwtConfig(jwtKey, jwtIssuer, jwtAudience)
-    .WithReference(sqlserver)
-    .WithReference(rabbitmq)
-    .WaitFor(sqlserver)
-    .WaitFor(rabbitmq);
+    .WithReference(projectDb).WaitFor(projectDb)
+    .WithReference(rabbitmq).WaitFor(rabbitmq);
 
 builder.AddProject<Projects.Tasks_API>("tasks-api")
     .WithJwtConfig(jwtKey, jwtIssuer, jwtAudience)
     .WithReference(projectApi)
-    .WithReference(sqlserver)
-    .WithReference(rabbitmq)
-    .WaitFor(sqlserver)
-    .WaitFor(rabbitmq);
+    .WithReference(taskDb).WaitFor(taskDb)
+    .WithReference(rabbitmq).WaitFor(rabbitmq);
+
+builder.AddProject<Projects.File_API>("file-api")
+    .WithJwtConfig(jwtKey, jwtIssuer, jwtAudience)
+    .WithReference(fileDb).WaitFor(fileDb)
+    .WithReference(rabbitmq).WaitFor(rabbitmq)
+    .WithReference(blobs).WaitFor(blobs);
 
 builder.AddProject<Projects.Email_Worker>("email-worker")
     .WithReference(rabbitmq)
     .WaitFor(rabbitmq);
-
-builder.AddProject<Projects.File_API>("file-api")
-    .WithReference(sqlserver)
-    .WithReference(rabbitmq)
-    .WithReference(blobs)
-    .WaitFor(sqlserver)
-    .WaitFor(rabbitmq)
-    .WaitFor(blobs);
-
 
 builder.Build().Run();
 

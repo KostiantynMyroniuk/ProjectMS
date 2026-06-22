@@ -13,7 +13,7 @@ namespace Project.API.Extensions
         {
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("projectmsDb"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("projectDb"));
             });
 
             builder.Services.AddMassTransit(x =>

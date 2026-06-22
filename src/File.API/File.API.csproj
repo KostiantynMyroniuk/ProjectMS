@@ -7,15 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Apis\" />
-    <Folder Include="Infrastructure\" />
-    <Folder Include="Models\" />
-    <Folder Include="Services\" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.29.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.14.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.8" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.8" />
+	<PackageReference Include="MassTransit" Version="8.2.5" />
+	<PackageReference Include="MassTransit.RabbitMQ" Version="8.2.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.29.0" />
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.14.0" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -11,23 +11,15 @@ namespace Tasks.API.Extensions
     {
         public static void AddAppConfiguration(this IHostApplicationBuilder builder)
         {
-            builder.Services.ConfigureHttpJsonOptions(options =>
-            {
-                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            });
-
-            builder.Services.AddAuthorization();
-
-            builder.Services.AddHttpContextAccessor();
-
+            //external services
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("projectmsDb"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("taskDb"));
             });
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddConsumers(typeof(IConsumer).Assembly);
+                x.AddConsumers(typeof(ProjectCreatedConsumer).Assembly);
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
@@ -37,9 +29,21 @@ namespace Tasks.API.Extensions
                 });
             });
 
+            //auth and http options
+            builder.Services.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+
+            builder.Services.AddAuthorization();
+
+            builder.Services.AddHttpContextAccessor();
+
+            //services
             builder.Services.AddScoped<IIdentityService, IdentityService>();
         }
 
+        //migrations for dev
         public static void UseMigrations(this WebApplication app)
         {
             if (app.Environment.IsDevelopment())

@@ -167,7 +167,7 @@ namespace Tasks.API.Apis
             var isMember = await context.ProjectMemberships
                 .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
 
-            return isMember ? null : Results.Forbid();
+            return isMember ? null : Results.NotFound();
         }
     }
 }

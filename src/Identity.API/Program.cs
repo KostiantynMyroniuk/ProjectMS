@@ -14,7 +14,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("projectmsDb"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("identityDb"));
 });
 
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
