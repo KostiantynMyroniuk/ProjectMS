@@ -11,6 +11,8 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+await app.EnsureBlobContainerAsync();
+
 app.UseMigrations();
 
 app.MapFileApi();

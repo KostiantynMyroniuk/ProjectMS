@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Shared.Events.ProjectMembers;
 using Shared.Services;
 using System.Text.Json.Serialization;
 using Tasks.API.Consumers;
@@ -24,6 +25,16 @@ namespace Tasks.API.Extensions
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(builder.Configuration.GetConnectionString("rabbitmq"));
+
+                    cfg.ReceiveEndpoint("task-api-project-created", e =>
+                    {
+                        e.ConfigureConsumer<ProjectCreatedConsumer>(context);
+                    });
+
+                    cfg.ReceiveEndpoint("task-api-member-added", e =>
+                    {
+                        e.ConfigureConsumer<UserAddedToProjectConsumer>(context);
+                    });
 
                     cfg.ConfigureEndpoints(context);
                 });

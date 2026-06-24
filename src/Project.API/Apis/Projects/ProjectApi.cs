@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Project.API.Models.Projects;
 using Project.API.Models.Projects.Dtos;
+using Shared.Events.ProjectMembers;
 using Shared.Events.Projects;
 using Shared.Models;
 
@@ -11,13 +12,13 @@ namespace Project.API.Apis.Projects
     {
         public static IEndpointRouteBuilder MapProjectApi(this IEndpointRouteBuilder app)
         {
-            var project = app.MapGroup("/").RequireAuthorization();
+            var projectGroup = app.MapGroup("/").RequireAuthorization();
 
-            project.MapGet("/projects/{projectId:guid}", GetProject);
-            project.MapGet("/my-projects", GetMyProjects);
-            project.MapPost("/projects", CreateProject);
-            project.MapPatch("/projects/{projectId:guid}", UpdateProject);
-            project.MapDelete("/projects/{projectId:guid}", DeleteProject);
+            projectGroup.MapGet("/projects/{projectId:guid}", GetProject);
+            projectGroup.MapGet("/my-projects", GetMyProjects);
+            projectGroup.MapPost("/projects", CreateProject);
+            projectGroup.MapPatch("/projects/{projectId:guid}", UpdateProject);
+            projectGroup.MapDelete("/projects/{projectId:guid}", DeleteProject);
 
             return app;
         }
@@ -108,10 +109,16 @@ namespace Project.API.Apis.Projects
             services.Logger.LogInformation("Project {ProjectId} created by user {UserId}", project.Id, userId);
 
             //event
+            //for project
             await publishEndpoint.Publish(new ProjectCreatedEvent(
                 project.Id, 
                 project.Name, 
                 project.OwnerId));
+
+            //for owner membership
+            await publishEndpoint.Publish(new UserAddedToProjectEvent(
+                userId, 
+                project.Id));
 
             return Results.Created($"/projects/{project.Id}", project);
         }
