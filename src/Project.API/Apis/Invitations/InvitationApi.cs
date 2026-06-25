@@ -13,15 +13,18 @@ namespace Project.API.Apis.Invitations
     {
         public static IEndpointRouteBuilder MapInvitationApi(this IEndpointRouteBuilder app)
         {
-            var group = app.MapGroup("/").RequireAuthorization();
+            var invGroup = app.MapGroup("projects/{projectId:guid}")
+                .RequireAuthorization();
 
-            group.MapPost("/invite", InviteUser);
-            group.MapGet("/invitation/accept", AcceptInvitation);
+            invGroup.MapPost("invite", InviteUser);
+
+            app.MapGet("invitation/accept", AcceptInvitation).RequireAuthorization();
 
             return app;
         }
 
         public static async Task<IResult> InviteUser(
+            Guid projectId,
             ProjectInvitationDto invitationDto,
             [AsParameters] InvitationServices services,
             IPublishEndpoint publishEndpoint)
@@ -32,7 +35,7 @@ namespace Project.API.Apis.Invitations
             var token = Guid.NewGuid();
 
             var project = await services.Context.Projects
-                .FindAsync(invitationDto.ProjectId);
+                .FindAsync(projectId);
 
             if (project == null)
             {
@@ -41,7 +44,7 @@ namespace Project.API.Apis.Invitations
 
             var existing = await services.Context.Invitations
                 .AnyAsync(i => i.Email == invitationDto.Email 
-                          && i.ProjectId == invitationDto.ProjectId 
+                          && i.ProjectId == projectId
                           && i.Status == InviteStatus.Pending);
 
             if (existing)
@@ -53,7 +56,7 @@ namespace Project.API.Apis.Invitations
                 token: token.ToString(),
                 email: invitationDto.Email,
                 invitedByUserId: userId,
-                projectId: invitationDto.ProjectId);
+                projectId: projectId);
 
             services.Context.Invitations.Add(invitation);
             await services.Context.SaveChangesAsync();

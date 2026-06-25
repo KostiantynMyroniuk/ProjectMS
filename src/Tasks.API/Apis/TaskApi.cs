@@ -10,7 +10,7 @@ namespace Tasks.API.Apis
     {
         public static IEndpointRouteBuilder MapTaskApi(this IEndpointRouteBuilder app)
         {
-            var tasksGroup = app.MapGroup("/projects/{projectId:guid}")
+            var tasksGroup = app.MapGroup("projects/{projectId:guid}")
                 .WithTags("Tasks")
                 .RequireAuthorization();
 

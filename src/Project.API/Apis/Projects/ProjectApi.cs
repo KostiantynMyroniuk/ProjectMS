@@ -14,11 +14,11 @@ namespace Project.API.Apis.Projects
         {
             var projectGroup = app.MapGroup("/").RequireAuthorization();
 
-            projectGroup.MapGet("/projects/{projectId:guid}", GetProject);
-            projectGroup.MapGet("/my-projects", GetMyProjects);
-            projectGroup.MapPost("/projects", CreateProject);
-            projectGroup.MapPatch("/projects/{projectId:guid}", UpdateProject);
-            projectGroup.MapDelete("/projects/{projectId:guid}", DeleteProject);
+            projectGroup.MapGet("projects/{projectId:guid}", GetProject);
+            projectGroup.MapGet("my-projects", GetMyProjects);
+            projectGroup.MapPost("projects", CreateProject);
+            projectGroup.MapPut("projects/{projectId:guid}", UpdateProject);
+            projectGroup.MapDelete("projects/{projectId:guid}", DeleteProject);
 
             return app;
         }
@@ -31,7 +31,7 @@ namespace Project.API.Apis.Projects
             if (pageNumber < 1)
                 return Results.BadRequest("Invalid page number");
 
-            if (pageSize <= 0)
+            if (pageSize <= 0 || pageSize > 100)
                 return Results.BadRequest("Invalid page size");
 
             var userId = services.IdentityService.GetUserId();

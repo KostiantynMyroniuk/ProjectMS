@@ -8,12 +8,11 @@ namespace File.API.Apis
     {
         public static IEndpointRouteBuilder MapFileApi(this IEndpointRouteBuilder app)
         {
-            var fileGroup = app.MapGroup("/projects/{projectId:guid}/tasks/{taskId:guid}/files")
+            var fileGroup = app.MapGroup("projects/{projectId:guid}/tasks/{taskId:guid}")
                 .WithTags("Files")
                 .RequireAuthorization();
 
-            fileGroup.MapPost("/", UploadFile).DisableAntiforgery();
-
+            fileGroup.MapPost("files", UploadFile).DisableAntiforgery();
 
             return app;
         }
@@ -64,7 +63,7 @@ namespace File.API.Apis
         private static async Task<IResult?> CheckAccessAsync(
             ApplicationDbContext context, Guid projectId, string userId)
         {
-            var projectExists = await context.Projects
+            var projectExists = await context.ProjectSnapshots
                 .AnyAsync(ps => ps.ProjectId == projectId && ps.IsActive);
 
             if (!projectExists)

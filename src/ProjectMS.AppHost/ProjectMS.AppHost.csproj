@@ -23,6 +23,7 @@
     <ProjectReference Include="..\Project.API\Project.API.csproj" />
     <ProjectReference Include="..\Tasks.API\Tasks.API.csproj" />
     <ProjectReference Include="..\Tasks.API\Tasks.API.csproj" />
+    <ProjectReference Include="..\Web.BFF\Web.BFF.csproj" />
   </ItemGroup>
 
 </Project>

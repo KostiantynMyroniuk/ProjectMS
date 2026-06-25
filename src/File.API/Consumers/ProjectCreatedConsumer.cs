@@ -19,7 +19,7 @@ namespace File.API.Consumers
         {
             var msg = context.Message;
 
-            var alreadyExist = await _context.Projects.AnyAsync(p => p.ProjectId == msg.ProjectId);
+            var alreadyExist = await _context.ProjectSnapshots.AnyAsync(p => p.ProjectId == msg.ProjectId);
 
             if (!alreadyExist)
             {
@@ -30,7 +30,7 @@ namespace File.API.Consumers
                     IsActive = true
                 };
 
-                _context.Projects.Add(project);
+                _context.ProjectSnapshots.Add(project);
                 await _context.SaveChangesAsync();
             }
         }

@@ -10,8 +10,8 @@ namespace Identity.API.Apis
     {
         public static IEndpointRouteBuilder MapAuth(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/register", Register);
-            app.MapPost("/login", Login);
+            app.MapPost("register", Register);
+            app.MapPost("login", Login);
 
             return app;
         }

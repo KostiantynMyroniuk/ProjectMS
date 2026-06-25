@@ -10,7 +10,7 @@ namespace File.API.Infrastructure
     {
         public DbSet<FileModel> Files { get; set; } = default!;
 
-        public DbSet<ProjectSnapshot> Projects { get; set; } = default!;
+        public DbSet<ProjectSnapshot> ProjectSnapshots { get; set; } = default!;
 
         public DbSet<ProjectMembership> ProjectMemberships { get; set; } = default!;
 

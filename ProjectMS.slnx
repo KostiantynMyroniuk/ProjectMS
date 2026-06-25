@@ -13,4 +13,5 @@
   </Folder>
   <Project Path="src/ProjectMS.AppHost/ProjectMS.AppHost.csproj" />
   <Project Path="src/Shared/Shared.csproj" Id="05db5154-380a-47de-9db9-cd2810e4b7ec" />
+  <Project Path="src/Web.BFF/Web.BFF.csproj" Id="18e5752e-f307-4e1d-b034-54e2163791a3" />
 </Solution>
