@@ -1,37 +1,37 @@
 # ProjectMS
 
-Project Management System — мікросервісний backend-застосунок для керування проєктами, задачами, файлами та запрошеннями учасників.
+Project Management System — a microservices-based backend application for managing projects, tasks, files, and member invitations.
 
-## Архітектура
+## Architecture
 
-Застосунок побудований на .NET Aspire і складається з кількох незалежних сервісів, що спілкуються між собою через повідомлення (RabbitMQ / MassTransit).
+The application is built on .NET Aspire and consists of several independent services that communicate with each other via messaging (RabbitMQ / MassTransit).
 
-| Сервіс | Опис |
+| Service | Description |
 |---|---|
-| `Identity.API` | Реєстрація, логін, видача JWT |
-| `Project.API` | Створення проєктів, учасники, запрошення |
-| `Tasks.API` | Задачі в межах проєкту |
-| `File.API` | Завантаження та зберігання файлів задач |
-| `Email.Worker` | Фоновий воркер, що надсилає email-запрошення |
-| `ProjectMS.AppHost` | Aspire-оркестратор: піднімає інфраструктуру та всі сервіси локально |
-| `Shared` | Спільні модулі |
+| `Identity.API` | Registration, login, JWT issuance |
+| `Project.API` | Project creation, members, invitations |
+| `Tasks.API` | Tasks within a project |
+| `File.API` | Uploading and storing task files |
+| `Email.Worker` | Background worker that sends email invitations |
+| `ProjectMS.AppHost` | Aspire orchestrator: spins up infrastructure and all services locally |
+| `Shared` | Shared modules |
 
-Кожен API-сервіс має власну базу даних (SQL Server):
+Each API service has its own database (SQL Server):
 
 - `identityDb` — Identity.API
 - `projectDb` — Project.API
 - `taskDb` — Tasks.API
 - `fileDb` — File.API
 
-Сервіси обмінюються подіями через RabbitMQ.
+Services exchange events via RabbitMQ.
 
-## Технології
+## Tech Stack
 
 - .NET 10 / ASP.NET Core (Minimal API)
 - Entity Framework Core + SQL Server
 - MassTransit + RabbitMQ
-- ASP.NET Core Identity + JWT (зберігається в HttpOnly cookie)
-- Azure Blob Storage (через `Azure.Storage.Blobs`)
-- MailKit/MimeKit — надсилання email
-- .NET Aspire — локальна оркестрація сервісів та інфраструктури
-- xUnit + Moq — тести
+- ASP.NET Core Identity + JWT (stored in an HttpOnly cookie)
+- Azure Blob Storage (via `Azure.Storage.Blobs`)
+- MailKit/MimeKit — sending email
+- .NET Aspire — local orchestration of services and infrastructure
+- xUnit + Moq — tests
